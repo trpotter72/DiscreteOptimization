@@ -9,8 +9,10 @@ def pruneOnDensity(items: List[Item], items_returned: int) -> List:
     just_items = map(lambda i: i[1], top_n)
     return list(just_items)
 
-def pruneDensityKeepSmall(items: List[Item], items_returned:int, smallest_ratio:float) -> List:
+def pruneDensityKeepSmall(items: List[Item], items_returned:int, smallest_ratio:float) -> List[Item]:
     #grab the smallest out
+    if items_returned >= len(items):
+        return items
     take = floor(items_returned*smallest_ratio)
     items.sort(key=lambda i: i.weight)
     smallest = items[:take]

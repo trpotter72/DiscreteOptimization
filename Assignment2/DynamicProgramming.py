@@ -4,14 +4,14 @@ from HeuristicUtil import safeValAdjust, pruneDensityKeepSmall
 from Item import Item
 import numpy as np
 from GreedySolvers import valueDensity
-
+from numba import jit, njit
 #Constants for DP algorithm #
 #---------------------------#
 #Prune lowest value density items
-max_item_count = 100
+max_item_count = 10000
 
 #Divide values and capacity (rounding up) to have this overall capacity
-max_iterations = 40000
+max_iterations = 100000000
 
 #Keep this percent of the smallest items (regardless of density)
 smallest_to_keep = .05 
@@ -49,21 +49,20 @@ def DP(capacity:int, items: List[Item],
     #             dp2d[i][j] += dp2d[i-1][j]
     #         j += 1
     # value = dp2d[-1][-1]
-    
-    # #Calculate capacity at a time
-    j = 0
-    while j <= capacity:
-    
-        if debug: print("Capacity {}\tof {}".format(j, capacity))
-        elif j % 100 == 0: print("{:.1f}%\t({} capacity)".format(j/capacity,capacity))
-        for i in range(1,len(dp2d)):
-            if j >= items[i-1].weight and (dp2d[i-1][j-items[i-1].weight] + items[i-1].value > dp2d[i-1][j]):
-                dp2d[i][j] += dp2d[i-1][j-items[i-1].weight] + items[i-1].value 
-            else:
-                dp2d[i][j] += dp2d[i-1][j]
-        j += 1
+    @njit
+    def fillGrid(dp2d, items):
+        #Calculate capacity at a time
+        for j in range(capacity+1):
+        
+            # if debug: print("Capacity {}\tof {}".format(j, capacity))
+            # elif j % 100 == 0: print("{:.1f}%\t({} capacity)".format(j/capacity,capacity))
+            for i in range(1,len(dp2d)):
+                if j >= items[i-1].weight and (dp2d[i-1][j-items[i-1].weight] + items[i-1].value > dp2d[i-1][j]):
+                    dp2d[i][j] += dp2d[i-1][j-items[i-1].weight] + items[i-1].value 
+                else:
+                    dp2d[i][j] += dp2d[i-1][j]
+    fillGrid(dp2d, items)
     value = dp2d[-1][-1]
-
     if debug: print("-End Array Population-\n\n")
 
     #Back-track to fill the taken array
