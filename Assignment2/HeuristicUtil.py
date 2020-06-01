@@ -26,7 +26,7 @@ def adjustedValAndCapacity(items: List[Item], curr_cap:int, target_cap:int, debu
     new_cap = floor(curr_cap/reduction_factor)
     new_cap = floor(new_cap*(getMinError(items, new_items, reduction_factor)+1))
     if debug:
-        print("Careles adjust analysis\n")
+        print("Careless adjust analysis\n")
         changeAnalysis(items, new_items, curr_cap, new_cap, reduction_factor)
     return new_cap, new_items
 

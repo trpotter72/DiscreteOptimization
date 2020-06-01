@@ -8,10 +8,10 @@ from GreedySolvers import valueDensity
 #Constants for DP algorithm #
 #---------------------------#
 #Prune lowest value density items
-max_item_count = 10000
+max_item_count = 100
 
 #Divide values and capacity (rounding up) to have this overall capacity
-max_capacity = 20000
+max_iterations = 40000
 
 #Keep this percent of the smallest items (regardless of density)
 smallest_to_keep = .05 
@@ -20,13 +20,14 @@ smallest_to_keep = .05
 def DP(capacity:int, items: List[Item], 
        adjust_item_count:bool = True, 
        adjust_capacity:bool = True, 
-       debug:bool = True) -> (int, List[int]):
+       debug:bool = False) -> (int, List[int]):
     
     if debug: print("-Starting Data Adjustments-\n")
     taken = [0] * len(items)
     if adjust_item_count:
         items = pruneDensityKeepSmall(items, max_item_count, smallest_to_keep)
 
+    max_capacity = max_iterations // len(items)
     if adjust_capacity:
         if capacity > max_capacity:
             capacity, items = safeValAdjust(items, capacity, max_capacity, debug=debug)
@@ -54,6 +55,7 @@ def DP(capacity:int, items: List[Item],
     while j <= capacity:
     
         if debug: print("Capacity {}\tof {}".format(j, capacity))
+        elif j % 100 == 0: print("{:.1f}%\t({} capacity)".format(j/capacity,capacity))
         for i in range(1,len(dp2d)):
             if j >= items[i-1].weight and (dp2d[i-1][j-items[i-1].weight] + items[i-1].value > dp2d[i-1][j]):
                 dp2d[i][j] += dp2d[i-1][j-items[i-1].weight] + items[i-1].value 
@@ -72,9 +74,3 @@ def DP(capacity:int, items: List[Item],
             j -= items[i-1].weight
 
     return value, taken
-
-def listGCD(nums:List[int])->int:
-    ans = gcd(nums[0],nums[1])
-    for i in nums:
-        ans = gcd(ans,i)
-    return ans
