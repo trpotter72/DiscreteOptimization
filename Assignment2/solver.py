@@ -7,6 +7,7 @@ from Item import Item
 
 from GreedySolvers import mostValue, valueDensity
 from DynamicProgramming import DP
+from BranchBound import BranchBound
 
 def solve_it(input_data, solver=None):
     # Modify this code to run your optimization algorithm
@@ -15,12 +16,14 @@ def solve_it(input_data, solver=None):
     # call solvers
     if solver == "DP":
         value, taken = DP(capacity, items, debug=False)
+    elif solver == "DPExact":
+        value, taken = DP(capacity, items, debug=False, adjust_capacity=False, adjust_item_count=False)
     elif solver == "GreedyValue":
         value, taken = mostValue(capacity,items)
     elif solver == "GreedyDensity":
         value, taken = valueDensity(capacity, items)
     else:
-        value, taken = DP(capacity, items, debug=True)
+        value, taken = BranchBound(capacity, items, debug=False)
     
     # prepare the solution in the specified output format
     output_data = str(value) + ' ' + str(0) + '\n'
