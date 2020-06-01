@@ -2,18 +2,25 @@
 # -*- coding: utf-8 -*-
 
 from collections import namedtuple
-Item = namedtuple("Item", ['index', 'value', 'weight'])
+from typing import NamedTuple
+from Item import Item
 
 from GreedySolvers import mostValue, valueDensity
 from DynamicProgramming import DP
 
-def solve_it(input_data):
+def solve_it(input_data, solver=None):
     # Modify this code to run your optimization algorithm
 
     capacity, items = parseInput(input_data)
     # call solvers
-
-    value, taken = DP(capacity, items)
+    if solver == "DP":
+        value, taken = DP(capacity, items, debug=False)
+    elif solver == "GreedyValue":
+        value, taken = mostValue(capacity,items)
+    elif solver == "GreedyDensity":
+        value, taken = valueDensity(capacity, items)
+    else:
+        value, taken = DP(capacity, items, debug=True)
     
     # prepare the solution in the specified output format
     output_data = str(value) + ' ' + str(0) + '\n'
@@ -52,13 +59,15 @@ def parseInput(input_data):
     
     return capacity, items
 
+def openFile(file_name):
+    with open(file_name, 'r') as input_data_file:
+        return input_data_file.read()
 
 if __name__ == '__main__':
     import sys
     if len(sys.argv) > 1:
         file_location = sys.argv[1].strip()
-        with open(file_location, 'r') as input_data_file:
-            input_data = input_data_file.read()
+        input_data = openFile(file_location)
         print(solve_it(input_data))
     else:
         print('This test requires an input file.  Please select one from the data directory. (i.e. python solver.py ./data/ks_4_0)')
